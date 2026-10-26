@@ -1,0 +1,127 @@
+# BlissLights BlissRadia: colour, ambient and night light lamp with
+# alarm/wake/sleep light schedules. Similar to the Dekala Lumos sunrise
+# alarm clock, but with no audio or display, a 0-1000 saturation scale,
+# and sleep settings on DP 107 rather than 128.
+#
+# Not yet exposed:
+# - DP 8 alarm status and DP 126 clock status (not reported locally)
+# - DP 103 ambiance scene data, DP 107 sleep and DP 109/111 alarm
+#   settings (raw, not reported locally so byte layout is unconfirmed)
+name: Sunrise lamp
+products:
+  - id: ssimhf6r8kgwepfb
+    manufacturer: BlissLights
+    model: BlissRadia
+entities:
+  - entity: light
+    translation_key: color_light
+    dps:
+      - id: 2
+        name: switch
+        type: boolean
+      - id: 101
+        name: brightness
+        type: integer
+        range:
+          min: 10
+          max: 1000
+        mapping:
+          - step: 10
+      - id: 11
+        name: rgbhsv
+        type: hex
+        format:
+          - name: h
+            bytes: 2
+            range:
+              min: 0
+              max: 360
+          - name: s
+            bytes: 2
+            range:
+              min: 0
+              max: 1000
+          # The app sets brightness on DP 101 and leaves V unchanged.
+          # Named "v_dummy" so HA reads brightness from DP 101.
+          - name: v_dummy
+            bytes: 2
+            range:
+              min: 0
+              max: 1000
+  - entity: light
+    translation_key: ambient_light
+    dps:
+      - id: 102
+        name: switch
+        type: boolean
+      - id: 123
+        name: brightness
+        type: integer
+        range:
+          min: 10
+          max: 1000
+        mapping:
+          - step: 10
+  - entity: light
+    translation_key: nightlight
+    dps:
+      - id: 104
+        name: switch
+        type: boolean
+      - id: 124
+        name: brightness
+        type: integer
+        range:
+          min: 10
+          max: 1000
+        mapping:
+          - step: 10
+  - entity: switch
+    translation_key: sleep
+    dps:
+      - id: 106
+        name: switch
+        type: boolean
+  # "Alarm" in the BlissLights app
+  - entity: switch
+    translation_key: alarm_x
+    translation_placeholders:
+      x: "1"
+    dps:
+      - id: 108
+        name: switch
+        type: boolean
+  # "Wake" in the BlissLights app
+  - entity: switch
+    translation_key: alarm_x
+    translation_placeholders:
+      x: "2"
+    dps:
+      - id: 110
+        name: switch
+        type: boolean
+  - entity: button
+    translation_key: alarm_off
+    dps:
+      - id: 112
+        name: button
+        type: boolean
+  - entity: switch
+    translation_key: network_time
+    category: config
+    dps:
+      - id: 115
+        name: switch
+        type: boolean
+  - entity: select
+    translation_key: time_format
+    category: config
+    dps:
+      - id: 125
+        name: option
+        type: boolean
+        mapping:
+          - dps_val: false
+            value: 12_hour
+          - dps_val: true
+            value: 24_hour
